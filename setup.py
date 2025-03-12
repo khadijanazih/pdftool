@@ -1,5 +1,10 @@
 import functions as fu
 import pdftool_gui as gui
-DIR_PATH = gui.folder
+gui.psg.theme_list()
+gui.psg.theme_previewer()
 
-print((fu.opendir(DIR_PATH)))
+#FOLDER = gui.folder
+#print(fu.explore_folder(FOLDER))
+
+
+
