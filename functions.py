@@ -21,41 +21,76 @@ def rename_file(file, new_name):
 
 def process_files_in_folder(folder):
     pdf_files = glob.glob(os.path.join(folder, "*.pdf"))  # Get all PDF files in the folder
-    LEN = len(pdf_files)
+    folder_count = len(pdf_files)
     for file in pdf_files:
         print(f"Processing: {file}")  # Debugging line
-        get_file_data(file)  # Call your function on each file
-    return LEN
+        print(get_file_data(file))  # Call your function on each file
+    return folder_count
 
 def get_file_data(file):
-    fileData = {}
+    file_data = {}
     pdf = pdfplumber.open(file)
-    text = pdf.pages[0].extract_text().split(" ")
+    text = pdf.pages[0].extract_text().splitlines()
+    for val in text :print(f"{text.index(val)} # {val}")
+
     pdf.close()
     new_name = ""
-
+    tension = ""
     if len(text) <=10:
         new_name ="blank"
         rename_file(file, new_name)
         return
-    try:
-        fileData['facture'] = text[text.index("Electricité") + 2]
-    except ValueError:
-        print("'N° facture' is not in the list")
-        new_name ="not compatible"
-        rename_file(file, new_name)
-        return
+    if file_type(file) == "BT":
+        try:
+            file_data['facture'] = text[10].split(" ")[3]
+        except ValueError:
+            print("'N° facture' is not in the list")
+            new_name ="not compatible"
+            rename_file(file, new_name)
+            return
+        tension = "BT"
+        file_data['contrat_SAP'] = text[5].split(" ")[text[5].split(" ").index("Contrat") + 1]
+        file_data['contrat_Waterp'] = text[5].split(" ")[text[5].split(" ").index("Contrat")+3]
+        file_data['N° Client'] = text[1].split(" ")[2]
+        file_data['Nom Client'] = " " .join(text[2].split()[1:-1])
 
-    fileData['contrat_Waterp'] = text[text.index("Contrat")+3]
-    fileData['contrat_SAP'] = text[text.index("Contrat")+1]
-    fileData['N° Client'] = text[text.index("Client") + 1]
-    index = next((i for i, v in enumerate(text) if "Adresse" in v), -1)
-    client = text[text.index("Client") + 4:index]
-    fileData['Nom Client'] =" ".join(client)
-    new_name = fileData['Nom Client']+" - " +fileData['facture']
+    elif file_type(file):
+        try:
+            file_data['facture'] = text[3].split(" ")[1]
+        except ValueError:
+            print("'N° facture' is not in the list")
+            new_name ="not compatible"
+            rename_file(file, new_name)
+            return
+        tension = "MT"
+        file_data['Nom Client'] = text[0]
+        file_data['contrat_Waterp'] = text[5].split(" ")[4]
+        file_data['contrat_SAP'] = text[5].split(" ")[2]
+        file_data['N° Client'] = text[8].split(" ")[2]
+
+    new_name = file_data['Nom Client'] + " - " + file_data['facture']+ " " + tension
     rename_file(file, new_name)
     print("#####################################")
-    return fileData
+    return file_data
 
-def get_invoice_type(file):
-    return 0
+
+def file_type(file):
+    pdf = pdfplumber.open(file)
+    text = pdf.pages[0].extract_text().split(" ")
+    pdf.close()
+    if next((i for i, v in enumerate(text) if "Usage" in v), -1)>=0:
+        return "BT"
+    if next((i for i, v in enumerate(text) if "Tarif" in v), -1)>=0:
+        return "MT"
+def process_mt(file):
+    file_data = {}
+    pdf = pdfplumber.open(file)
+    text = pdf.pages[0].extract_text().splitlines()
+    pdf.close()
+
+    file_data['Nom Client'] = text[0]
+    file_data['facture'] = text[3].split(" ")[1]
+    file_data['contrat_Waterp'] = text[5].split(" ")[4]
+    file_data['contrat_SAP'] = text[5].split(" ")[2]
+    file_data['N° Client'] = text[8].split(" ")[2]
+    return file_data
