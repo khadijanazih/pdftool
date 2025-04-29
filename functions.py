@@ -62,7 +62,7 @@ def get_file_data(file):
         file_data['contrat_Waterp'] = text[lineind].split()[textind + 3]
 
 
-        new_name = file_data['N° Client'] + " - " + file_data['facture'] + " " + file_data['facture'] +" " +tension
+        new_name = file_data['N° Client'] + " - " + file_data['facture'] + " " + file_data['Nom Client'] +" " +tension
         rename_file(file, new_name)
 
     elif file_type(file) == "MT":
