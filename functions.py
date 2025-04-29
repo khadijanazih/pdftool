@@ -16,7 +16,8 @@ def process_files_in_folder(folder,progress_bar, prog_label,window):
         prog_label.update(f"{ math.ceil((i/total_files)*100)} %")
         window.TKroot.update_idletasks()
         time.sleep(0.01)  # Add a short delay
-
+    time.sleep(0.01)  # Add a short delay
+    prog_label.update(f"Done {total_files} Files")
     print(f"Done ! Processed {total_files} Files")
 
     return folder
@@ -26,7 +27,7 @@ def get_file_data(file):
     pdf = pdfplumber.open(file)
     text = pdf.pages[0].extract_text().splitlines()
     pdf.close()
-    new_name, tension = "", ""
+
 
     file_name = os.path.splitext(os.path.basename(file))[0]
     if is_blank(file):
@@ -61,7 +62,7 @@ def get_file_data(file):
         file_data['contrat_Waterp'] = text[lineind].split()[textind + 3]
 
 
-        new_name = file_data['Nom Client'] + " - " + file_data['facture'] + " " + tension
+        new_name = file_data['N° Client'] + " - " + file_data['facture'] + " " + file_data['facture'] +" " +tension
         rename_file(file, new_name)
 
     elif file_type(file) == "MT":
@@ -147,5 +148,5 @@ def get_file_count(folder):
 def build_progress_bar(psg,folder):
 
     return [
-        [psg.Text("Progress : "), psg.ProgressBar(max_value=get_file_count(folder), size=(45, 20), key="-PROG-"), psg.Text("% : ", key="-PROG_LABEL-")]
+        [psg.Text("Progress : "), psg.ProgressBar(max_value=get_file_count(folder), size=(45, 20), key="-PROG-"), psg.Text("% : ", key="-PROG_LABEL-", size =(12,1))]
     ]
