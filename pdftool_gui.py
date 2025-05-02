@@ -2,8 +2,10 @@ import PySimpleGUI as Psg, functions as fu
 
 Psg.theme('Light Brown4')
 layout = [
-    [Psg.Text("Select a file:"), Psg.Input(key="-FOLDER-PATH", size=(70,1)), Psg.FolderBrowse(),Psg.Button("Submit", size=(7,1))],
-    [Psg.Column([[]], key="-CONTAINER-", justification="left")]  # Empty container to hold new elements
+    [Psg.Text("Select a file:"), Psg.Input(key="-FOLDER-PATH", size=(70,1)), Psg.FolderBrowse()],
+    [Psg.Column([[]], key="-CONTAINER-", justification="left")],  # Empty container to hold new elements
+    [Psg.Button("Submit", size=(7,1)),Psg.Button("Merge PDFs", key="MERGE"), Psg.Button("Mass Print", key="PRINT")]
+
 ]
 
 
@@ -28,10 +30,18 @@ while True:
         window.refresh()  # Refresh UI to apply changes
         window.TKroot.update_idletasks()
 
-
         progress_bar = window["-PROG-"]  # Re-fetch the new progress bar
         progress_label = window["-PROG_LABEL-"]
 
         fu.process_files_in_folder(folder, progress_bar, progress_label, window)
+
+    if event == "MERGE":
+        folder = values["-FOLDER-PATH"]
+        fu.merge_files(folder)
+
+
+    if event == "PRINT":
+        print("⚠️This button is here to test new functions")
+
 
 window.close()
